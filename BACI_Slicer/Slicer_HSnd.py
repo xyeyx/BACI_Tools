@@ -2,7 +2,7 @@
 # -*- encoding = utf-8 -*-
 
 '''
-Utility of slicing BACI into smaller files per HS4 instead of per year.
+Utility of slicing BACI into smaller files per HS at a desired level instead of per year.
 -------------------------
 A: Xianja Ye
 E: X[d0t]Ye[8]rug.nl
@@ -25,8 +25,8 @@ python HSSplit_4d.py
 to create sliced CSV files. 
 
 They will be named as HS4_****.csv in the same folder, in the end there will be
-also a HS4_LIST.csv file created, which is about all the HS4 entries that have
-appeared in the version of BACI.
+also a HSn_LIST.csv file created, which is about all the HS code at [n] level entries 
+that have appeared in the version of BACI. The value n vary across 1 to 6. 
 '''
 
 print("Initializing...");
@@ -40,7 +40,7 @@ startyear = 2007
 endyear = 2022
 
 # Number of HS digits. The value must between 1 and 6.
-nd = 6
+n = 6
 
 # Cache size per each file operation, 
 # Note about trade-offs: 
@@ -50,7 +50,7 @@ nd = 6
 # Takes about 400MB when set to 5000.
 cachesize_std = 3000;
 
-cachesize_hs = 3000*(7-n);
+cachesize_hs = int(3000*(7-n/2));
 
 
 import os;
@@ -99,13 +99,13 @@ def makelist(cache):
     g.close();
 
 def create_file(target):
-    filename = 'HS4_'+target+'.csv';
+    filename = 'HS'+str(len(target))+'_'+target+'.csv';
     g=open(filename, 'w');
     g.writelines('y,i,j,k,v,q\n');
     g.close();
 
 def write_to_file(target, txt):
-    filename = 'HS4_'+target+'.csv';
+    filename = 'HS'+str(len(target))+'_'+target+'.csv';
     g=open(filename, 'a');
     g.writelines(txt);
     g.close();
@@ -134,8 +134,8 @@ for yr in range(startyear, endyear +1):
         lineinfo = aline.split(',');
         [yy, ii, jj, kk, vv, qq] = lineinfo;
         dt = ','.join([yy, ii, jj, kk, vv.strip(), qq.strip()])+'\n';
-        k4 = kk.strip()[:nd];
-        line_appending(cache_host, k4, dt);
+        kn = kk.strip()[:n];
+        line_appending(cache_host, kn, dt);
         aline = f.readline();
 
     f.close();
